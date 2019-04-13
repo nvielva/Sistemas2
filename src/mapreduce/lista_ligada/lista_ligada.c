@@ -72,17 +72,35 @@ void listaligada_append(ListaLigada* lista, char* palabra)
     
 }
 
-void linkedlist_destroy(ListaLigada* list)
-{Node* aux = NULL;
+int recursion_destruir( Node* nodo)
+{
+    if(nodo->next == NULL)
+    {
+        free(nodo);
+        return 0;
+    }
+    else
+    {
+        recursion_destruir(nodo->next);
+        free(nodo);
+        return 0;
+    }
+    
+
+}
+
+void listaligada_destroy(ListaLigada* list)
+{Node* aux;
   aux= malloc(sizeof(Node));
-  while (list->cabeza->next != NULL) {
-    aux -> next = list->cabeza->next->next;
-    free(list->cabeza->next);
-    list->cabeza->next = aux->next;
+  aux = list->cabeza;
+  recursion_destruir(aux);
   free(list->cabeza);
   free(list->cola);
   free(list);
   free(aux);
-  }
+  
+}
+
+
 
 
