@@ -39,7 +39,10 @@ int main(int argument_count, char** arguments) {
 		actual = actual->next;
 	}
 	
+
+	
 	listaligada_destroy(lista);
+	
 
 	return 0;
 }
