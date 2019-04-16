@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <pthread.h>
+#include <string.h>
 
 #include "../lista_ligada/lista_ligada.h"
 
@@ -17,11 +18,12 @@ typedef struct lista_palabras
 ListaPalabras* lista_palabras_init(char** lista, int largo)
 {
 	ListaPalabras* lista_w = malloc(sizeof(ListaPalabras));
+	
 	lista_w ->palabras = lista;
 	lista_w ->largo = largo;
 	printf("-------------------llegueueeueueue\n");
 	for (int palabra = 0; palabra < 300; palabra++)
-	{	printf("Palabra: ");
+	{	printf("Palabra numero %i: ", palabra);
 		printf("%s",lista_w->palabras[palabra]);
 		
 		printf("\n");
@@ -33,18 +35,49 @@ ListaPalabras* lista_palabras_init(char** lista, int largo)
 
 }
 
-void* map_thread(void* args){
-	ListaPalabras* palabras = (ListaPalabras*) args;
-	
+void** map_thread(void** args){
+
+	char** palabras = calloc(300, sizeof(char*));
+
+	for(int row = 0; row < 300; row++)
+	{
+		palabras[row] = calloc(45, sizeof(char));
+
+
+	}
+	for(int row = 0; row < 300; row++)
+	{	
+		char* str = args[row];
+		for(int i = 0; str[i]; i++){
+		str[i] = tolower(str[i]);
+		}
+		strcpy(palabras[row], str);
+	}
 	
 	ListaLigada* lista_map;
 	lista_map = listaligada_init();
-	for (int i = 0; i < palabras->largo; i++)
-	{
-		//printf("Palabra: %s", palabras->palabras[i]);
-		
+	int numero = 0 ;
+	while (numero <300)
+	{	
+		listaligada_append(lista_map, palabras[numero]);
+		numero+=1;
 	}
-	return lista_map;
+	Node* actual;
+	actual = lista_map->cabeza;
+	int num = 0;
+	while (1)
+	{	if(actual == lista_map->cola)
+		{
+			printf("Palabra %i: %s // Reps: %i\n",num, lista_map->cola->palabra, lista_map->cola->value);
+			break;
+		}
+		printf("Palabra %i: %s // Reps: %i\n",num, actual->palabra, actual->value);
+		actual = actual->next;
+		num+=1;
+	}
+	
+	
+	pthread_exit(lista_map);
 	
 
 	
@@ -62,67 +95,69 @@ int main(int argument_count, char** arguments) {
 
 
 	}
+
+	char** asignado = calloc(300, sizeof(char*));
+
+	for(int row = 0; row < 300; row++)
+	{
+		asignado[row] = calloc(45, sizeof(char));
+
+
+	}
+
 	char * filename = arguments[1];
 	FILE * file = fopen(filename, "r");
 	if (file == NULL) {
 		return 1;
 	}
-	char c;
-	int count = 0;
-	int contador = 0;
+	char* c[45];
 	int thread_number = 0;
-	int palabra;
-	palabra = 0;
 	int letra = 0;
-	while((c = fgetc(file)) != EOF)
-	{	char* word[45];
-		if (palabra == 300)
-		{  
-			ListaPalabras* words;
-			printf("TOOOOOOOOOOOoco");
-			words = lista_palabras_init(lectura, palabra);
-			/*CREAR THREAD */
-			//pthread_t my_thread[thread_number];
-			//pthread_create(&my_thread[thread_number], NULL, map_thread, (void*)&words);
-			palabra = 0;
-			thread_number+=1;
-			for(int palab = 0; palab < 300; palab++)
-			{
+	int wrd;
+	pthread_t my_thread[200];
+	while(fscanf(file, "%s", c) != EOF)
+	{	
+		if(wrd == 300){
+
+			for (int i = 0; i < 300; i++)
+			{	
+				strcpy(asignado[i],lectura[i]);
 				
-				lectura[palab] = "";
-
-
-						
 			}
 			
+			//words = lista_palabras_init(lectura, 300);
+			pthread_t my_thread[thread_number];
+			pthread_create(&my_thread[thread_number], NULL, map_thread, asignado);
+			thread_number+=1;
+			wrd = 0;
+			
+			
+			
+			
+
 		}
 		
-		if(c == ' ' || c == '\n')
-		{
-			printf("\n");
-			++count;
-			palabra+=1;
-			letra = 0;
-			
-		}
-		else
-		{	
-			lectura[palabra][letra] = c;
-			printf("%c", c);
-			letra+=1;
-		}
+	
+		
+		strcpy(lectura[wrd], c);
+		
+		wrd+=1;
+		
 	}
-	if (contador > 0)
+
+	for (int i = 0; i < thread_number; i++)
 	{
-		/* CREAR THREAD */
-		//pthread_t my_thread;
-		//pthread_create(&my_thread, NULL, map_thread(lectura, contador), NULL);
-		contador = 0;
+		ListaLigada* return_val;
+		pthread_join(my_thread[i], &return_val);
+		printf("padre: %s", return_val->cabeza->palabra);
 	}
+	
+	
+	
 	
 	fclose(file);
  
-	printf("Archivo tiene %i palabras \n.", count);
+
 
 
 

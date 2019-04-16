@@ -90,6 +90,12 @@ void listaligada_destroy(ListaLigada* list)
   
 }
 
+void listaligada_union(ListaLigada* lista1, ListaLigada* lista2)
+{
+    
+    
+}
+
 
 
 
